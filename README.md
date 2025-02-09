@@ -3,25 +3,25 @@ Project Overview
 This project provides a legal and risk analysis tool using Watson AI. It allows users to upload documents (txt, pdf, csv) and receive risk and legal analyses based on the content using Watson's natural language processing capabilities. The app provides detailed risk identification, recommendations, and insights from uploaded files.
 
 # Features:
-Upload a document (txt, pdf, csv) for analysis.
-Detailed analysis of the document focusing on legal and risk aspects.
-Actionable recommendations to mitigate risks or manage obligations.
-Integration with Watson AI for legal and risk analysis.
+* Upload a document (txt, pdf, csv) for analysis.
+* Detailed analysis of the document focusing on legal and risk aspects.
+* Actionable recommendations to mitigate risks or manage obligations.
+* Integration with Watson AI for legal and risk analysis.
 
 # Project Files:
-risk assessment.ipynb: Jupyter notebook for initial experimentation and data handling.
-LICENSE: Contains the licensing information for the project.
-README.md: The readme file containing the documentation.
-app.py: Streamlit app code for running the risk analysis interface.
-requirements.txt: The file containing all necessary dependencies to run the project.
-risk_analysis.xlsx: Example dataset used in the project for testing purposes.
+* risk assessment.ipynb: Jupyter notebook for initial experimentation and data handling.
+* LICENSE: Contains the licensing information for the project.
+* README.md: The readme file containing the documentation.
+* app.py: Streamlit app code for running the risk analysis interface.
+* requirements.txt: The file containing all necessary dependencies to run the project.
+* risk_analysis.xlsx: Example dataset used in the project for testing purposes.
 
 
 
 
 
 
-# License This project is licensed under the MIT License. MIT License
+# License 
 
 Copyright (c) 2025 TanGSaN02
 
