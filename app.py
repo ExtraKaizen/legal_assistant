@@ -13,6 +13,7 @@ import requests
 from mailjet_rest import Client
 import base64
 from email_validator import validate_email, EmailNotValidError
+from pathlib import Path
 
 nltk.download('punkt')
 fake = Faker()
@@ -24,26 +25,25 @@ groq_api_key = os.getenv("groq_api_key")
 # Initialize Groq client
 client = Groq(api_key=groq_api_key)
 
-# Customized UI Styling
 def inject_custom_css():
     st.markdown(f"""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Open+Sans:wght@400;600&display=swap');
         
         :root {{
-            --primary: #FF9F00;  
-            --secondary: #FFD700; 
-            --accent: #F3D87C;    
-            --background: #202A44; 
-            --sidebar-bg: #1B2334; 
-            --card-bg: #1A1F3F;  
-            --doc-card-hover: #1F2435; 
+            --primary: #FF9F00;  /* A golden, confident shade for attention-grabbing elements */
+            --secondary: #FFD700; /* A warm, trustworthy gold for accents */
+            --accent: #F3D87C;    /* Soft light yellow for subtle highlights */
+            --background: #202A44; /* Dark background for professionalism, with a touch of mystery */
+            --sidebar-bg: #1B2334; /* Slightly darker for the sidebar to maintain focus */
+            --card-bg: #1A1F3F;   /* Slightly muted shade to avoid a stark contrast */
+            --doc-card-hover: #1F2435; /* A darker hover effect for the document cards */
         }}
         
         body {{
             font-family: 'Open Sans', sans-serif;
             background: var(--background);
-            color: #EDEDED;  
+            color: #EDEDED;  /* Light grey text for better readability on dark background */
         }}
         
         .main {{
@@ -57,7 +57,7 @@ def inject_custom_css():
             max-width: 75%;
             position: relative;
             animation: fadeIn 0.3s ease-in;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow for more depth */
             font-size: 0.95rem;
             line-height: 1.6;
             transition: transform 0.2s ease;
@@ -65,14 +65,14 @@ def inject_custom_css():
         
         .user-bubble {{
             background: var(--accent);
-            color: #2A2F4F; 
+            color: #2A2F4F; /* Darker text for better contrast */
             margin-left: auto;
             border-bottom-right-radius: 0.5rem;
         }}
         
         .bot-bubble {{
             background: #ededeb;
-            color: black; 
+            color: black; /* Light text for the bot */
             margin-right: auto;
             border-bottom-left-radius: 0.5rem;
             backdrop-filter: blur(5px);
@@ -101,7 +101,7 @@ def inject_custom_css():
         .stTextInput input {{
             border: 2px solid var(--primary)!important;
             border-radius: 12px!important;
-            background: #FFFFFF22!important; 
+            background: #FFFFFF22!important; /* Slightly darker input background for contrast */
             color: var(--primary)!important;
         }}
         
@@ -122,7 +122,7 @@ def inject_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
-# Create a session state to store data
+
 def init_session():
     session_defaults = {
         "documents": {},
@@ -135,7 +135,6 @@ def init_session():
         if key not in st.session_state:
             st.session_state[key] = value
 
-# Initialize session state
 def process_document(uploaded_file):
     try:
         doc_id = uploaded_file.file_id
@@ -194,7 +193,6 @@ def process_document(uploaded_file):
         st.error(f"Error processing document: {str(e)}")
         return False
 
-# Generate a PDF report for a selected document
 def generate_pdf_report(doc_id):
     # Retrieve document data
     doc = st.session_state.documents[doc_id]
@@ -271,7 +269,6 @@ def generate_pdf_report(doc_id):
     return pdf.output(dest='S').encode('latin1')
 
 
-# Run the application
 def get_ai_response(context, prompt, max_tokens=1500):
     system_prompt = """You are a legal expert assistant. Format responses with:
     - Clear section headers in **bold**
@@ -298,8 +295,8 @@ def get_ai_response(context, prompt, max_tokens=1500):
         return response.choices[0].message.content
     except Exception as e:
         return f"Error processing request: {str(e)}"
-      
-# Main application
+
+# Main Function
 def main():
     st.set_page_config(page_title="⚖️ LegalMind Pro", page_icon="⚖️", layout="wide")
     inject_custom_css()
@@ -345,113 +342,128 @@ def main():
                     doc_id = st.session_state.selected_doc
                     report = generate_pdf_report(doc_id)
                     st.download_button("💾 Download Report", report, 
-                                      file_name=f"{st.session_state.documents[doc_id]['name']}_report.pdf",
-                                      mime="application/pdf")
-                  
-                st.markdown("---")
-                with st.expander("📧 Email Report"):
-                    email = st.text_input("Recipient Email")
-                    if st.button("Send Report"):
-                        try:
-                            valid = validate_email(email)
-                            
-                            if st.session_state.selected_doc:
-                                doc_id = st.session_state.selected_doc
-                                doc_data = st.session_state.documents[doc_id]
-                                
-                                # Generate report
-                                report = generate_pdf_report(doc_id)
-                                report_name = f"{doc_data['name']}_analysis_report.pdf"
-                                
-                                # Get original document content
-                                original_doc_name = doc_data["name"]
-                                original_doc_content = doc_data["content"].encode()
-                                
-                                # Configure Mailjet client
-                                mailjet = Client(auth=(os.getenv('EMAIL_API_KEY'), os.getenv('EMAIL_API_SECRET')), version='v3.1')
-                                
-                                # Create HTML email template
-                                html_content = f"""
-                                <html>
-                                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                                        <div style="max-width: 600px; margin: 0 auto;">
-                                            <img src="assets/logo.jpeg" 
-                                            alt="LegalMind Pro Logo" style="max-width: 200px; margin-bottom: 20px;">
-                                            
-                                            <h2 style="color: #2A2F4F;">Legal Analysis Report Prepared for You</h2>
-                                            
-                                            <p>Dear Recipient,</p>
-                                            
-                                            <p>Please find attached your comprehensive legal analysis report for document: 
-                                            <strong>{original_doc_name}</strong>.</p>
-                                            
-                                            <h3 style="color: #2A2F4F; margin-top: 25px;">📄 Included Attachments:</h3>
-                                            <ul>
-                                                <li>📋 <strong>Full Analysis Report</strong> - Detailed risk assessment and recommendations</li>
-                                                <li>🔍 <strong>Original Document</strong> - Your submitted file for reference</li>
-                                            </ul>
-                                            
-                                            <h3 style="color: #2A2F4F; margin-top: 25px;">🔑 Key Highlights:</h3>
-                                            <ul>
-                                                <li>Risk Score: {doc_data['analysis']['risk_score']}/100</li>
-                                                <li>{len(doc_data['analysis']['risks'])} Critical Risks Identified</li>
-                                                <li>{len(doc_data['analysis']['recommendations'])} Professional Recommendations</li>
-                                            </ul>
-                                            
-                                            <p style="margin-top: 25px;">Need clarification? Reply to this email for support.</p>
-                                            
-                                            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-                                                <p>Best regards,<br>
-                                                <strong>The LegalMind Pro Team</strong></p>
-                                                <img src="assets/logo.jpeg" alt="Logo" style="max-width: 100px; opacity: 0.8;">
-                                            </div>
-                                        </div>
-                                    </body>
-                                </html>
-                                """
+                                     file_name=f"{st.session_state.documents[doc_id]['name']}_report.pdf",
+                                     mime="application/pdf")
 
-                                # Create email with attachments
-                                data = {
-                                    'Messages': [{
-                                        "From": {
-                                            "Email": "legalmindpro@gmail.com",
-                                            "Name": "LegalMind Pro"
-                                        },
-                                        "To": [{
-                                            "Email": valid.email
-                                        }],
-                                        "Subject": f"Legal Analysis Report: {original_doc_name}",
-                                        "HTMLPart": html_content,
-                                        "Attachments": [
-                                            {
-                                                "ContentType": "application/pdf",
-                                                "Filename": report_name,
-                                                "Base64Content": base64.b64encode(report).decode()
-                                            },
-                                            {
-                                                "ContentType": "text/plain" if doc_data['name'].endswith('.txt') else "application/pdf",
-                                                "Filename": original_doc_name,
-                                                "Base64Content": base64.b64encode(original_doc_content).decode()
-                                            }
-                                        ]
-                                    }]
-                                }
-                                
-                                # Send email
-                                result = mailjet.send.create(data=data)
-                                
-                                if result.status_code == 200:
-                                    st.success("📨 Report and document sent successfully!")
-                                else:
-                                    st.error(f"Failed to send email: {result.json().get('ErrorMessage', 'Unknown error')}")
-                            else:
-                                st.warning("Please select a document first!")
-                                
-                        except EmailNotValidError as e:
-                            st.error(str(e))
-                        except Exception as e:
-                            st.error(f"Error sending email: {str(e)}")
+            # Email Section
+            st.markdown("---")
+            with st.expander("📧 Email Report"):
+                email = st.text_input("Recipient Email")
+                if st.button("Send Report"):
+                    try:
+                        valid = validate_email(email)
+                        
+                        if st.session_state.selected_doc:
+                            doc_id = st.session_state.selected_doc
+                            doc_data = st.session_state.documents[doc_id]
                             
+                            # Load logo image
+                            logo_path = Path("assets/logo.jpeg")
+                            with open(logo_path, "rb") as logo_file:
+                                logo_b64 = base64.b64encode(logo_file.read()).decode()
+                            
+                            # Generate report
+                            report = generate_pdf_report(doc_id)
+                            report_name = f"{doc_data['name']}_analysis_report.pdf"
+                            
+                            # Prepare original document
+                            original_doc_name = doc_data["name"]
+                            if original_doc_name.endswith('.pdf'):
+                                original_doc_content = doc_data["content"].encode('utf-8')
+                                content_type = "application/pdf"
+                            else:
+                                original_doc_content = doc_data["content"].encode('utf-8')
+                                content_type = "text/plain; charset=utf-8"
+                            
+                            # Configure Mailjet client
+                            mailjet = Client(auth=(os.getenv('EMAIL_API_KEY'), os.getenv('EMAIL_API_SECRET')), version='v3.1')
+                            
+                            # Create HTML email template
+                            html_content = f"""
+                            <html>
+                                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                    <div style="max-width: 600px; margin: 0 auto;">
+                                        <img src="data:image/jpeg;base64,{logo_b64}" alt="LegalMind Pro Logo" 
+                                            style="max-width: 200px; margin-bottom: 20px;">
+                                        
+                                        <h2 style="color: #2A2F4F;">Legal Document Analysis Report</h2>
+                                        
+                                        <p>Dear Client,</p>
+                                        
+                                        <p>We have completed the analysis of your document: 
+                                        <strong>{original_doc_name}</strong>. Please review the attached report containing:</p>
+                                        
+                                        <ul>
+                                            <li>🔍 Comprehensive risk assessment</li>
+                                            <li>📋 Detailed recommendations</li>
+                                            <li>⚖️ Key legal implications</li>
+                                        </ul>
+                                        
+                                        <h3 style="color: #2A2F4F; margin-top: 25px;">Risk Overview</h3>
+                                        <p>Our analysis identified critical risks requiring attention. 
+                                        The document received a risk score of {doc_data['analysis']['risk_score']}/100, indicating 
+                                        {"urgent attention required" if doc_data['analysis']['risk_score'] > 70 else "moderate risk level"}.</p>
+                                        
+                                        <h3 style="color: #2A2F4F; margin-top: 25px;">Next Steps</h3>
+                                        <ul>
+                                            <li>Review the attached report and original document</li>
+                                            <li>Prioritize implementation of recommendations</li>
+                                            <li>Contact us for clarification if needed</li>
+                                        </ul>
+                                        
+                                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                                            <p>Best regards,<br>
+                                            <strong>The LegalMind Pro Team</strong></p>
+                                            <img src="data:image/jpeg;base64,{logo_b64}" alt="Logo" 
+                                                style="max-width: 100px; opacity: 0.8; margin-top: 15px;">
+                                        </div>
+                                    </div>
+                                </body>
+                            </html>
+                            """
+
+                            # Create email with attachments
+                            data = {
+                                'Messages': [{
+                                    "From": {
+                                        "Email": "legalmindpro@gmail.com",
+                                        "Name": "LegalMind Pro"
+                                    },
+                                    "To": [{
+                                        "Email": valid.email
+                                    }],
+                                    "Subject": f"Legal Analysis Report: {original_doc_name}",
+                                    "HTMLPart": html_content,
+                                    "Attachments": [
+                                        {
+                                            "ContentType": "application/pdf",
+                                            "Filename": report_name,
+                                            "Base64Content": base64.b64encode(report).decode()
+                                        },
+                                        {
+                                            "ContentType": content_type,
+                                            "Filename": original_doc_name,
+                                            "Base64Content": base64.b64encode(original_doc_content).decode()
+                                        }
+                                    ]
+                                }]
+                            }
+                            
+                            # Send email
+                            result = mailjet.send.create(data=data)
+                            
+                            if result.status_code == 200:
+                                st.success("📨 Report and document sent successfully!")
+                            else:
+                                st.error(f"Failed to send email: {result.json().get('ErrorMessage', 'Unknown error')}")
+                        else:
+                            st.warning("Please select a document first!")
+                            
+                    except EmailNotValidError as e:
+                        st.error(str(e))
+                    except Exception as e:
+                        st.error(f"Error sending email: {str(e)}")
+
     # Main Content
     col1, col2 = st.columns([1, 2], gap="medium")
 
@@ -503,40 +515,32 @@ def main():
                     {msg['content']}
                 </div>
                 """, unsafe_allow_html=True)
-
-        # Send message button   # Chat Input
-        user_input = st.chat_input("Type your legal query...")
         
+        # Chat Input
+        user_input = st.chat_input("Type your legal query...")
+
         if user_input:
-            # Append user input to the chat history
             st.session_state.history.append({"role": "user", "content": user_input})
             
-            # Start the analysis process
-            with st.spinner("Analyzing your query..."):
+            with st.spinner("Analyzing..."):
                 start_time = time.time()
                 
-                # Determine if document is uploaded
                 if st.session_state.selected_doc:
-                    # If document is uploaded, use the document content as context for the response
                     context = st.session_state.documents[st.session_state.selected_doc]["content"]
                     response = get_ai_response(context, user_input)
                 else:
-                    # If no document is uploaded, provide a general legal assistant response
-                    response = get_ai_response("", f"Legal Assistant: {user_input}")
+                    response = get_ai_response("", user_input)
                 
-                # Measure response time for performance feedback
+                if not st.session_state.selected_doc and any(word in user_input.lower() for word in ["hi", "hello", "hey"]):
+                    response = "Hello! I'm your legal AI assistant. How can I help you today?"
+                
                 processing_time = time.time() - start_time
                 
-                # Show processing time only if it exceeds 3 seconds
                 if processing_time > 3:
                     st.toast(f"Response generated in {processing_time:.1f}s", icon="⏳")
                 
-                # Append AI's response to the chat history
                 st.session_state.history.append({"role": "assistant", "content": response})
-                
-                # Re-run the app to update the UI and chat history
                 st.rerun()
-                
-# Run the application                            
+
 if __name__ == "__main__":
     main()
