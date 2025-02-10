@@ -31,19 +31,19 @@ def inject_custom_css():
         @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Open+Sans:wght@400;600&display=swap');
         
         :root {{
-            --primary: #FF9F00;  /* A golden, confident shade for attention-grabbing elements */
-            --secondary: #FFD700; /* A warm, trustworthy gold for accents */
-            --accent: #F3D87C;    /* Soft light yellow for subtle highlights */
-            --background: #202A44; /* Dark background for professionalism, with a touch of mystery */
-            --sidebar-bg: #1B2334; /* Slightly darker for the sidebar to maintain focus */
-            --card-bg: #1A1F3F;   /* Slightly muted shade to avoid a stark contrast */
-            --doc-card-hover: #1F2435; /* A darker hover effect for the document cards */
+            --primary: #FF9F00; 
+            --secondary: #FFD700; 
+            --accent: #F3D87C;   
+            --background: #202A44; 
+            --sidebar-bg: #1B2334; 
+            --card-bg: #1A1F3F;  
+            --doc-card-hover: #1F2435; 
         }}
         
         body {{
             font-family: 'Open Sans', sans-serif;
             background: var(--background);
-            color: #EDEDED;  /* Light grey text for better readability on dark background */
+            color: #EDEDED;  
         }}
         
         .main {{
@@ -57,7 +57,7 @@ def inject_custom_css():
             max-width: 75%;
             position: relative;
             animation: fadeIn 0.3s ease-in;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow for more depth */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
             font-size: 0.95rem;
             line-height: 1.6;
             transition: transform 0.2s ease;
@@ -65,14 +65,14 @@ def inject_custom_css():
         
         .user-bubble {{
             background: var(--accent);
-            color: #2A2F4F; /* Darker text for better contrast */
+            color: #2A2F4F; 
             margin-left: auto;
             border-bottom-right-radius: 0.5rem;
         }}
         
         .bot-bubble {{
             background: #ededeb;
-            color: black; /* Light text for the bot */
+            color: black;
             margin-right: auto;
             border-bottom-left-radius: 0.5rem;
             backdrop-filter: blur(5px);
@@ -193,6 +193,7 @@ def process_document(uploaded_file):
         st.error(f"Error processing document: {str(e)}")
         return False
 
+# Function to generate a report
 def generate_pdf_report(doc_id):
     # Retrieve document data
     doc = st.session_state.documents[doc_id]
@@ -268,7 +269,7 @@ def generate_pdf_report(doc_id):
     # Return the PDF output as a binary string
     return pdf.output(dest='S').encode('latin1')
 
-
+# Get the AI responses
 def get_ai_response(context, prompt, max_tokens=1500):
     system_prompt = """You are a legal expert assistant. Format responses with:
     - Clear section headers in **bold**
