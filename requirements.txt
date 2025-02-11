@@ -9,3 +9,8 @@ faker
 fpdf 
 email-validator
 mailjet-rest==1.3.4
+groq 
+langchain
+google-auth
+google-api-python-client
+langchain-groq
