@@ -45,7 +45,7 @@ def detect_risks_and_recommendations(text_chunks):
 
    
 def gsheet(file):
-    SERVICE_ACCOUNT_FILE = "infosys-449015-83ef8f804adb.json"
+    SERVICE_ACCOUNT_FILE = "gcredentials.json"
     SPREADSHEET_ID = "1rvEwtYh7mpqcBZgv7D14giGZ_mhBM-aiNZ_dxjJJQf0"  # Replace with your Google Sheet ID
 
     text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=20)
