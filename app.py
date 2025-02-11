@@ -14,6 +14,7 @@ from mailjet_rest import Client
 import base64
 from email_validator import validate_email, EmailNotValidError
 from pathlib import Path
+from Gsheet import gsheet
 
 nltk.download('punkt')
 fake = Faker()
@@ -268,6 +269,8 @@ def generate_pdf_report(doc_id):
 
     # Return the PDF output as a binary string
     return pdf.output(dest='S').encode('latin1')
+  
+
 
 # Get the AI responses
 def get_ai_response(context, prompt, max_tokens=1500):
@@ -345,6 +348,15 @@ def main():
                     st.download_button("💾 Download Report", report, 
                                      file_name=f"{st.session_state.documents[doc_id]['name']}_report.pdf",
                                      mime="application/pdf")
+              
+                
+                if st.button("📄 Upload to Google Sheet"):
+                  # file_content = uploaded_file.read().decode("utf-8")
+                  pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                  text = "".join([page.extract_text() for page in pdf_reader.pages])
+                  gsheet(text)
+               
+              
 
             # Email Section
             st.markdown("---")
