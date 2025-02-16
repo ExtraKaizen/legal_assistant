@@ -23,7 +23,7 @@ fake = Faker()
 load_dotenv()
 groq_api_key = os.getenv("groq_api_key")
 
-# Initialize Groq client
+# Initialize Groq 
 client = Groq(api_key=groq_api_key)
 
 def inject_custom_css():
