@@ -4,7 +4,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from langchain_groq import ChatGroq
 
-
+# Groq Set-up 
 API_KEY= "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"
 MODEL_NAME = "llama-3.2-11b-vision-preview"
 llm = ChatGroq(groq_api_key=API_KEY, model_name=MODEL_NAME)
