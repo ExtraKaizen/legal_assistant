@@ -2,7 +2,7 @@
 
 ## Overview
 
-**LegalMind Pro** is an **Advanced AI-Driven Application** designed to assist legal professionals, businesses, and individuals in analyzing legal documents. The application leverages state-of-the-art AI models to provide comprehensive insights, risk assessments, and recommendations based on the content of uploaded legal documents. With features like document analysis, risk scoring, executive summaries, and a built-in legal assistant, LegalMind Pro streamlines the process of legal document review and decision-making.
+**LegalMind Pro** is an **Advanced AI-Driven App** designed to assist legal professionals, businesses, and individuals in analyzing legal documents. The application leverages state-of-the-art AI models to provide comprehensive insights, risk assessments, and recommendations based on the content of uploaded legal documents. With features like document analysis, risk scoring, executive summaries, and a built-in legal assistant, LegalMind Pro streamlines the process of legal document review and decision-making.
 
 ## Features
 
