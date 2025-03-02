@@ -194,7 +194,7 @@ def process_document(uploaded_file):
         st.error(f"Error processing document: {str(e)}")
         return False
 
-# Function to generate a report
+# A function to generate a report
 def generate_pdf_report(doc_id):
     # Retrieve document data
     doc = st.session_state.documents[doc_id]
