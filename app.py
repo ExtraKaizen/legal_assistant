@@ -170,7 +170,7 @@ def process_document(uploaded_file):
 
         # Process analysis with improved prompts
         with st.spinner(f"Analyzing {uploaded_file.name}..."):
-            doc_content = text[:12000]  # Truncate to avoid token limits
+            doc_content = text[:12000]  # This will truncate to avoid token limits
             
             st.session_state.documents[doc_id]["analysis"] = {
                 "risk_score": random.randint(20, 80),
